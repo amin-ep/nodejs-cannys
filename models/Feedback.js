@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+
 const { Schema } = mongoose;
 
 const feedbackSchema = new Schema(

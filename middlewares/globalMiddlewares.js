@@ -68,3 +68,38 @@ export const protectUserField = (req, res, next) => {
   }
   next();
 };
+
+export const setUserOnBody = (req, res, next) => {
+  if (!req.body.user) req.body.user = req.user.id;
+  next();
+};
+
+export const checkDocsOwner = Model => {
+  return async (req, res, next) => {
+    const document = await Model.findById(req.params.id);
+    if (document.user != req.user.id) {
+      if (req.user.role === 'admin') {
+        return next();
+      } else {
+        return next(
+          new HTTPError(
+            "You don't have premission to performe this action!",
+            403,
+          ),
+        );
+      }
+    }
+  };
+};
+
+export const setFeedbackIdOnBody = (req, res, next) => {
+  if (!req.body.feedback) req.body.feedback = req.params.feedbackId;
+  next();
+};
+
+export const setImageOnBody = (req, res, next) => {
+  if (req.file) {
+    req.body.images === req.file.originalname;
+  }
+  next();
+};

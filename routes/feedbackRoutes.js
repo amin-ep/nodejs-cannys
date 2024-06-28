@@ -3,11 +3,13 @@ import FeedbackController from '../controllers/feedbackController.js';
 import {
   protect,
   protectUserField,
-  allowedRoles,
+  checkDocsOwner,
+  setImageOnBody,
 } from '../middlewares/globalMiddlewares.js';
 import voteRouter from './voteRoutes.js';
 import commentRouter from './commentRoutes.js';
-
+import Feedback from '../models/Feedback.js';
+import { uploadImage } from '../middlewares/uploadImage.js';
 const feedback = new FeedbackController();
 
 const router = express.Router();
@@ -15,14 +17,23 @@ const router = express.Router();
 router.use('/:feedbackId/votes', voteRouter);
 router.use('/:feedbackId/comments', commentRouter);
 
-router.route('/').get(feedback.getAll).post(protect, feedback.createOne);
+router
+  .route('/')
+  .get(feedback.getAll)
+  .post(protect, uploadImage, setImageOnBody, feedback.createOne);
 
 router.use(protect);
 
 router
   .route('/:id')
   .get(feedback.getOne)
-  .patch(allowedRoles('admin'), protectUserField, feedback.updateOne)
-  .delete(allowedRoles('admin'), feedback.deleteOne);
+  .patch(
+    protectUserField,
+    checkDocsOwner(Feedback),
+    uploadImage,
+    setImageOnBody,
+    feedback.updateOne,
+  )
+  .delete(checkDocsOwner(Feedback), feedback.deleteOne);
 
 export default router;
