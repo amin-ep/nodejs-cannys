@@ -1,7 +1,6 @@
 import express from 'express';
 import VoteController from '../controllers/voteController.js';
 import {
-  protectUserField,
   protect,
   checkDocsOwner,
   setFeedbackIdOnBody,
@@ -17,7 +16,6 @@ router.route('/').get(votes.getAll).post(setFeedbackIdOnBody, votes.toggleVote);
 router
   .route('/:id')
   .get(votes.getOne)
-  .patch(protectUserField, checkDocsOwner(Vote), votes.updateOne)
   .delete(checkDocsOwner(Vote), votes.deleteOne);
 
 export default router;

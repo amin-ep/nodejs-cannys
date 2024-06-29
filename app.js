@@ -13,10 +13,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import { swaggerDocumentation } from './documentation/swagger.js';
+import { serve, setup } from 'swagger-ui-express';
 
 const app = express();
 
 app.use(express.json());
+
+// documentation
+app.use('/documentation', serve, setup(swaggerDocumentation));
 
 // middlewares
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +33,7 @@ const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
 });
 app.use(morgan('combined', { stream: logStream }));
 app.use(helmet());
+app.use(mongoSanitize());
 
 const limiterMessage = 'To many requests. try again later!';
 const limiter = rateLimit({

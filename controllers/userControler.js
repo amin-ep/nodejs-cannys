@@ -44,7 +44,7 @@ class UserController extends Factory {
           status: 'success',
           message: `An email sent to ${req.body.email}. Please verify your email account`,
         });
-      } catch {
+      } catch (err) {
         res.status(500).json({
           status: 'error',
           message: 'something went wrong!',
@@ -107,8 +107,6 @@ class UserController extends Factory {
     req.params.id = req.user.id;
     next();
   }
-
-  protectRoleField(req, res, next) {}
 }
 
 export default UserController;

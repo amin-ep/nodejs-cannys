@@ -14,7 +14,7 @@ export const signupValidator = Joi.object({
     'string.min': '"password" must contain atleast 8 chracters atleast!',
     'string.max': `"password" cannot contain morer than 12 charcters!`,
   }),
-  photo: Joi.string(),
+  image: Joi.string(),
   role: Joi.string().valid('admin', 'user').default('user'),
 });
 
@@ -24,11 +24,11 @@ export const loginValidator = signupValidator.fork(
 );
 
 export const forgetPasswordValidator = signupValidator.fork(
-  ['role', 'fullName', 'password', 'photo'],
+  ['role', 'fullName', 'password', 'image'],
   schema => schema.forbidden(),
 );
 
 export const resetPasswordValidator = signupValidator.fork(
-  ['fullName', 'email', 'photo', 'role'],
+  ['fullName', 'email', 'image', 'role'],
   schema => schema.forbidden(),
 );

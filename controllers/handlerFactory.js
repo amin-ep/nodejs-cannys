@@ -1,5 +1,6 @@
 import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../errors/httpError.js';
+import APIFeatures from '../utils/apiFeautures.js';
 
 class Factory {
   constructor(Model, createValidator, updateValidator) {
@@ -8,8 +9,13 @@ class Factory {
     this.updateValidator = updateValidator;
   }
 
-  getAll = catchAsync(async (req, res, next) => {
-    const docs = await this.Model.find();
+  getAll = catchAsync(async (req, res) => {
+    const features = new APIFeatures(this.Model.find(), req.query)
+      .filter()
+      .limit()
+      .paginate()
+      .sort();
+    const docs = await features.query;
 
     res.status(200).json({
       status: 'success',
@@ -22,10 +28,6 @@ class Factory {
 
   getOne = catchAsync(async (req, res, next) => {
     const doc = await this.Model.findById(req.params.id);
-
-    if (!doc) {
-      return next(new HTTPError(`Invalid Id: ${req.params.id}`));
-    }
 
     res.status(200).json({
       status: 'success',

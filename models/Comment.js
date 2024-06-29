@@ -20,7 +20,7 @@ const commentSchema = new Schema(
     text: {
       type: String,
     },
-    images: [String],
+    image: [String],
     published: {
       type: Boolean,
       default: false,

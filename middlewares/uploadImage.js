@@ -6,13 +6,12 @@ const storage = multer.diskStorage({
     cb(null, 'uploads');
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
 const multerFilter = (req, file, cb) => {
-  console.log(file);
-  if (file.mimetype.startsWith('images')) {
+  if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
     cb(new HTTPError('Not an image, please upload only images', 400), false);
@@ -20,4 +19,4 @@ const multerFilter = (req, file, cb) => {
 };
 const uploads = multer({ storage: storage, fileFilter: multerFilter });
 
-export const uploadImage = uploads.single('images');
+export const uploadImage = uploads.single('image');

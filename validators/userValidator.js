@@ -5,7 +5,7 @@ const schema = {
   email: Joi.string().email().optional(),
   password: Joi.string().min(8).max(12).optional(),
   currentPassword: Joi.string().required(),
-  photo: Joi.string().optional(),
+  image: Joi.string().optional(),
   role: Joi.string().optional(),
   verified: Joi.boolean().optional(),
   active: Joi.boolean().optional(),
@@ -19,7 +19,7 @@ export const updateMeValidator = Joi.object(schema).fork(
 );
 
 export const changeMyPasswordValidator = Joi.object(schema).fork(
-  ['fullName', 'email', 'photo', 'role', 'verified', 'active'],
+  ['fullName', 'email', 'image', 'role', 'verified', 'active'],
   schema => schema.forbidden(),
   ['password'],
 );

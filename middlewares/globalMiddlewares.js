@@ -16,6 +16,7 @@ export const protect = catchAsync(async (req, res, next) => {
     return next(new HTTPError("You're not ogged in. Please login first", 401));
   }
   // get user based on token and validate token
+  // eslint-disable-next-line no-undef
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   const currentUser = await User.findById(decoded.id);
@@ -99,7 +100,7 @@ export const setFeedbackIdOnBody = (req, res, next) => {
 
 export const setImageOnBody = (req, res, next) => {
   if (req.file) {
-    req.body.images === req.file.originalname;
+    req.body.image = [`${Date.now()}-${req.file.originalname}`];
   }
   next();
 };

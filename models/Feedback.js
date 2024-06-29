@@ -18,7 +18,7 @@ const feedbackSchema = new Schema(
     body: {
       String,
     },
-    images: [String],
+    image: [String],
     slug: String,
   },
   {
