@@ -19,7 +19,7 @@ const userSchema = new Schema(
     password: {
       type: String,
     },
-    photo: {
+    image: {
       type: String,
     },
     role: {
@@ -45,9 +45,9 @@ const userSchema = new Schema(
 
 // MIDDLEWARES
 userSchema.pre('save', async function (next) {
-  if (!this.isModified()) return next();
-
-  this.password = await bcrypt.hash(this.password, 12);
+  if (this.isNew) {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
   next();
 });
 

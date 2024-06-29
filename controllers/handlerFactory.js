@@ -2,10 +2,10 @@ import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../errors/httpError.js';
 
 class Factory {
-  constructor(Model, createValidator, updteValidator) {
+  constructor(Model, createValidator, updateValidator) {
     this.Model = Model;
     this.createValidator = createValidator;
-    this.updteValidator = updteValidator;
+    this.updateValidator = updateValidator;
   }
 
   getAll = catchAsync(async (req, res, next) => {
@@ -36,8 +36,7 @@ class Factory {
   });
 
   createOne = catchAsync(async (req, res, next) => {
-    if (!req.body.user) req.body.user = req.user.id;
-    if (!req.body.feedback) req.body.feedback = req.params.feedbackId;
+    if (!req.body.user) req.body.user = req.user.id; //FIXME
 
     const { error } = this.createValidator.validate(req.body);
 
@@ -56,23 +55,7 @@ class Factory {
   });
 
   deleteOne = catchAsync(async (req, res, next) => {
-    const doc = await this.Model.findById(req.params.id);
-
-    if (!doc) {
-      return next(new HTTPError(`Invalid Id: ${req.params.id}`));
-    }
-
-    // if (doc.user) {
-    if (doc.user._id != req.user.id) {
-      if (req.user.role === 'admin') return next();
-      else
-        return next(
-          new HTTPError('This document belongs to another user!', 403),
-        );
-    } else {
-      await this.Model.findByIdAndDelete(req.params.id);
-    }
-    // }
+    await this.Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
       status: 'success',
@@ -81,7 +64,7 @@ class Factory {
   });
 
   updateOne = catchAsync(async (req, res, next) => {
-    const { error } = this.updteValidator.validate(req.body);
+    const { error } = this.updateValidator.validate(req.body);
 
     if (error) {
       return next(new HTTPError(error.message, 400));
@@ -94,14 +77,6 @@ class Factory {
         new: true,
       },
     );
-
-    if (updatedDoc.user != req.user.id) {
-      if (req.user.role === 'admin') return next();
-      else
-        return next(
-          new HTTPError('This document belongs to another user!', 403),
-        );
-    }
 
     res.status(200).json({
       status: 'success',

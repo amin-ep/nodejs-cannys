@@ -4,7 +4,10 @@ import {
   protect,
   allowedRoles,
   protectUserField,
+  checkDocsOwner,
+  setFeedbackIdOnBody,
 } from '../middlewares/globalMiddlewares.js';
+import Comment from '../models/Comment.js';
 
 const router = express.Router({ mergeParams: true });
 
@@ -15,15 +18,16 @@ router
   .route('/')
   .get(comment.getAll)
   .post(
-    allowedRoles('user', 'admin'),
+    allowedRoles('user'),
     comment.checkParentCommentData,
+    setFeedbackIdOnBody,
     comment.createOne,
   );
 
 router
   .route('/:id')
   .get(comment.getOne)
-  .delete(comment.deleteOne)
-  .patch(protectUserField, comment.updateOne);
+  .delete(checkDocsOwner(Comment), comment.deleteOne)
+  .patch(protectUserField, checkDocsOwner(Comment), comment.updateOne);
 
 export default router;

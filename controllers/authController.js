@@ -8,7 +8,7 @@ import {
   resetPasswordValidator,
 } from '../validators/authValidator.js';
 import HTTPError from '../errors/httpError.js';
-import sendMail from '../email/email.js';
+import sendEmail from '../helpers/sendEmail.js';
 
 export default class AuthController {
   //  GENERATE TOKEN
@@ -19,52 +19,44 @@ export default class AuthController {
     return token;
   }
 
-  // SEND EMAIL
-  async sendEmail(user, res, message) {
-    const key = user.generateVerifyKey();
-    const link = `${req.protocol}://localhost:${process.env.PORT}/api/v1/auth/verifyEmail/${key}`;
-    const html = `
-      Please click this <a href="${link}">Link</a> to verify your email address!
-    `;
-    try {
-      // user.emailVerifyCode = key;
-      await user.save({ validateBeforeSave: false });
-      await sendMail({
-        email: user.email,
-        subject: `This is your email verification key: ${key}`,
-        message: key,
-        html: html,
-      });
-      res.status(201).json({
-        status: 'success',
-        message: message,
-      });
-    } catch (err) {
-      res.status(500).json({
-        status: 'error',
-        message: 'something went wrong!',
-        err,
-      });
-    }
-  }
-
   // REGISTER
   register = catchAsync(async (req, res, next) => {
-    const { error, value } = signupValidator.validate(req.body);
+    const { error } = signupValidator.validate(req.body);
 
     if (error) {
       return next(new HTTPError(error.message, 400));
     }
 
-    const checkUserDocument = await User.findOne({ email: req.body.email });
+    const checkUserExists = await User.findOne({ email: req.body.email });
 
     const message = `An email sent to ${req.body.email}. Please verify your email!`;
-    if (!checkUserDocument) {
+
+    if (!checkUserExists) {
       const user = await User.create(req.body);
-      this.sendEmail(user, res, message);
-    } else if (checkUserDocument && checkUserDocument.verified === false) {
-      this.sendEmail(checkUserDocument, res, message);
-    } else if (checkUserDocument) {
+      const key = user.generateVerifyKey();
+      await user.save({ validateBeforeSave: false });
+      const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
+      const html = `
+        <p>To confirm your email address please click <a href="${link}"></a> 
+      `;
+      // this.sendEmail(user, res, message);
+      await sendEmail(
+        { email: req.body.email, subject: key, message, html },
+        res,
+      );
+    } else if (checkUserExists && checkUserExists.verified === false) {
+      const key = checkUserExists.generateVerifyKey();
+      await checkUserExists.save({ validateBeforeSave: false });
+      const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
+      const html = `
+        <p>To confirm your email address please click <a href="${link}"></a> </p>
+      `;
+      // this.sendEmail(user, res, message);
+      await sendEmail(
+        { email: req.body.email, subject: key, message, html },
+        res,
+      );
+    } else if (checkUserExists && checkUserExists.verified === true) {
       return next(new HTTPError('There is an account with this email!', 403));
     }
   });
@@ -108,12 +100,10 @@ export default class AuthController {
       '+password',
     );
 
-    if (
-      !user ||
-      !(await user.verifyPassword(req.body.password)) //FIXME
-    ) {
+    if (!user || !(await user.verifyPassword(req.body.password))) {
       return next(new HTTPError('Icorrect email or password', 400));
     }
+
     const token = this.generateToken(user);
 
     if (user.verified === false) {
@@ -143,36 +133,16 @@ export default class AuthController {
     if (!user) {
       return next(new HTTPError('There is no user with this email!', 404));
     }
-    // generate reset token and token expiere date to user
-    // send email to user
-
-    // REFACTOR THIS CODE (DON'T REPEAT YOURSELF)
-    // const link = `http://localhost:1337/api/v1/auth/resetPassworrd/${resetToken}`;
     const resetToken = user.generatePasswordResetToken();
     await user.save({ validateBeforeSave: false });
     const html = `
         <p>This is your reset Token: ${resetToken}</p>
   `;
-    try {
-      // user.emailVerifyCode = key;
-      await sendMail({
-        email: user.email,
-        subject: `This is your password reset token: ${resetToken} (Valid for 10 minutes)`,
-        message: resetToken,
-        html: html,
-      });
-
-      res.status(200).json({
-        status: 'success',
-        message: `An email sent to ${req.body.email}`,
-      });
-    } catch (err) {
-      res.status(500).json({
-        status: 'error',
-        message: 'something went wrong!',
-        err,
-      });
-    }
+    const message = `An email sent to ${req.body.email}. Please verify your email!`;
+    await sendEmail(
+      { email: req.body.email, subject: resetToken, message, html },
+      res,
+    );
   });
 
   resetPassword = catchAsync(async (req, res, next) => {
