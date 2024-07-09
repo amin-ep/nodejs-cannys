@@ -1,15 +1,12 @@
 import Factory from './handlerFactory.js';
 import Comment from '../models/Comment.js';
-import {
-  createCommentValidator,
-  updateCommentValidator,
-} from '../validators/CommentValidator.js';
+
 import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../errors/httpError.js';
 
 class CommentController extends Factory {
   constructor() {
-    super(Comment, createCommentValidator, updateCommentValidator);
+    super(Comment);
   }
 
   // Middleware

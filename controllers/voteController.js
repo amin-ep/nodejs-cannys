@@ -1,24 +1,17 @@
 import Factory from './handlerFactory.js';
 import Vote from '../models/Vote.js';
-import { voteValidator } from '../validators/voteValidator.js';
+
 import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../errors/httpError.js';
 import Feedback from '../models/Feedback.js';
 
 class VoteController extends Factory {
   constructor() {
-    super(Vote, voteValidator);
+    super(Vote);
   }
 
-  toggleVote = catchAsync(async (req, res, next) => {
+  toggleVote = catchAsync(async (req, res) => {
     if (!req.body.feedback) req.body.feedback = req.params.feedbackId;
-
-    if (!req.body.user) req.body.user = req.user.id;
-
-    const { error } = voteValidator.validate(req.body);
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
 
     const selectedFeedback = await Feedback.findOne({
       _id: req.body.feedback,

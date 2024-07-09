@@ -1,12 +1,7 @@
 import User from '../models/User.js';
 import catchAsync from '../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
-import {
-  signupValidator,
-  loginValidator,
-  forgetPasswordValidator,
-  resetPasswordValidator,
-} from '../validators/authValidator.js';
+import { resetPasswordValidator } from '../validators/authValidator.js';
 import HTTPError from '../errors/httpError.js';
 import sendEmail from '../helpers/sendEmail.js';
 
@@ -21,12 +16,6 @@ export default class AuthController {
 
   // REGISTER
   register = catchAsync(async (req, res, next) => {
-    const { error } = signupValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
-
     const checkUserExists = await User.findOne({ email: req.body.email });
 
     const message = `An email sent to ${req.body.email}. Please verify your email!`;
@@ -89,12 +78,6 @@ export default class AuthController {
 
   // LOGIN
   login = catchAsync(async (req, res, next) => {
-    // Validate input data
-    const { error } = loginValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
     // find user
     const user = await User.findOne({ email: req.body.email }).select(
       '+password',
@@ -121,12 +104,6 @@ export default class AuthController {
 
   // FORGET PASSWORD
   forgetPassword = catchAsync(async (req, res, next) => {
-    // validate input email
-    const { error } = forgetPasswordValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
     // get user by email
     const user = await User.findOne({ email: req.body.email });
     // check user
@@ -155,7 +132,7 @@ export default class AuthController {
     if (!user) {
       return next(new HTTPError('Invalid or expiered token', 404));
     }
-    // validate input data
+
     const { error } = resetPasswordValidator.validate(req.body);
 
     if (error) {
@@ -169,12 +146,12 @@ export default class AuthController {
     user.resetTokenExpieresAt = undefined;
     await user.save({ validateBeforeSave: false });
 
+    // send response
     res.status(200).json({
       status: 'success',
       data: {
         user,
       },
     });
-    // send response
   });
 }

@@ -104,3 +104,14 @@ export const setImageOnBody = (req, res, next) => {
   }
   next();
 };
+
+export const addValidator = validator => {
+  return (req, res, next) => {
+    const { error } = validator.validate(req.body);
+
+    if (error) {
+      return next(new HTTPError(error.message, 400));
+    }
+    next();
+  };
+};

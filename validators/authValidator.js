@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-export const signupValidator = Joi.object({
+const schema = {
   fullName: Joi.string().min(4).max(16).required().messages({
     'string.empty': 'please tell us your "fullName"',
     'string.min': '"fullName" must contain atleast 4 chracters atleast!',
@@ -15,20 +15,20 @@ export const signupValidator = Joi.object({
     'string.max': `"password" cannot contain morer than 12 charcters!`,
   }),
   image: Joi.string(),
-  role: Joi.string().valid('admin', 'user').default('user'),
-});
+};
+export const registerValidator = Joi.object(schema);
 
-export const loginValidator = signupValidator.fork(
-  ['fullName', 'role'],
+export const loginValidator = Joi.object(schema).fork(
+  ['fullName', 'image'],
   schema => schema.forbidden(),
 );
 
-export const forgetPasswordValidator = signupValidator.fork(
-  ['role', 'fullName', 'password', 'image'],
+export const forgetPasswordValidator = Joi.object(schema).fork(
+  ['fullName', 'password', 'image'],
   schema => schema.forbidden(),
 );
 
-export const resetPasswordValidator = signupValidator.fork(
-  ['fullName', 'email', 'image', 'role'],
+export const resetPasswordValidator = Joi.object(schema).fork(
+  ['fullName', 'email', 'image'],
   schema => schema.forbidden(),
 );

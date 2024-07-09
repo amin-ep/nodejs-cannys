@@ -2,24 +2,14 @@ import catchAsync from '../utils/catchAsync.js';
 import User from '../models/User.js';
 import HTTPError from '../errors/httpError.js';
 import Factory from './handlerFactory.js';
-import {
-  changeMyPasswordValidator,
-  updateMeValidator,
-  updateUserValidator,
-} from '../validators/userValidator.js';
+
 import sendMail from '../email/email.js';
 
 class UserController extends Factory {
   constructor() {
-    super(User, undefined, updateUserValidator);
+    super(User);
   }
   updateMe = catchAsync(async (req, res, next) => {
-    const { error } = updateMeValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
-
     if (req.body.email) {
       const checkInputEmail = await User.findOne({ email: req.body.email });
       if (checkInputEmail) {
@@ -66,12 +56,6 @@ class UserController extends Factory {
   });
 
   updateMyPassword = catchAsync(async (req, res, next) => {
-    const { error } = changeMyPasswordValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
-
     const user = await User.findById(req.user.id).select('+password');
 
     if (!(await user.verifyPassword(req.body.currentPassword))) {
@@ -90,7 +74,7 @@ class UserController extends Factory {
     });
   });
 
-  deleteMe = catchAsync(async (req, res, next) => {
+  deleteMe = catchAsync(async (req, res) => {
     const user = await User.findById(req.user.id);
     user.active = false;
     await user.save({ validateBeforeSave: false });

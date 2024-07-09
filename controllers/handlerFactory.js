@@ -1,12 +1,9 @@
 import catchAsync from '../utils/catchAsync.js';
-import HTTPError from '../errors/httpError.js';
 import APIFeatures from '../utils/apiFeautures.js';
 
 class Factory {
-  constructor(Model, createValidator, updateValidator) {
+  constructor(Model) {
     this.Model = Model;
-    this.createValidator = createValidator;
-    this.updateValidator = updateValidator;
   }
 
   getAll = catchAsync(async (req, res) => {
@@ -26,7 +23,7 @@ class Factory {
     });
   });
 
-  getOne = catchAsync(async (req, res, next) => {
+  getOne = catchAsync(async (req, res) => {
     const doc = await this.Model.findById(req.params.id);
 
     res.status(200).json({
@@ -37,15 +34,7 @@ class Factory {
     });
   });
 
-  createOne = catchAsync(async (req, res, next) => {
-    if (!req.body.user) req.body.user = req.user.id; //FIXME
-
-    const { error } = this.createValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
-
+  createOne = catchAsync(async (req, res) => {
     const newDoc = await this.Model.create(req.body);
 
     res.status(201).json({
@@ -66,12 +55,6 @@ class Factory {
   });
 
   updateOne = catchAsync(async (req, res, next) => {
-    const { error } = this.updateValidator.validate(req.body);
-
-    if (error) {
-      return next(new HTTPError(error.message, 400));
-    }
-
     const updatedDoc = await this.Model.findByIdAndUpdate(
       req.params.id,
       req.body,

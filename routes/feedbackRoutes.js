@@ -5,11 +5,17 @@ import {
   protectUserField,
   checkDocsOwner,
   setImageOnBody,
+  addValidator,
 } from '../middlewares/globalMiddlewares.js';
 import voteRouter from './voteRoutes.js';
 import commentRouter from './commentRoutes.js';
 import Feedback from '../models/Feedback.js';
-import { uploadImage } from '../middlewares/uploadImage.js';
+import { uploadImage } from '../utils/uploadImage.js';
+import {
+  createFeedbackValidator,
+  updateFeedbackValidator,
+} from '../validators/feedbackValidator.js';
+
 const feedback = new FeedbackController();
 
 const router = express.Router();
@@ -20,7 +26,13 @@ router.use('/:feedbackId/comments', commentRouter);
 router
   .route('/')
   .get(feedback.getAll)
-  .post(protect, uploadImage, setImageOnBody, feedback.createOne);
+  .post(
+    protect,
+    addValidator(createFeedbackValidator),
+    uploadImage,
+    setImageOnBody,
+    feedback.createOne,
+  );
 
 router.use(protect);
 
@@ -30,6 +42,7 @@ router
   .patch(
     protectUserField,
     checkDocsOwner(Feedback),
+    addValidator(updateFeedbackValidator),
     uploadImage,
     setImageOnBody,
     feedback.updateOne,
