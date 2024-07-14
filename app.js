@@ -10,8 +10,8 @@ import HTTPError from './errors/httpError.js';
 import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import { swaggerDocumentation } from './documentation/swagger.js';
@@ -25,10 +25,10 @@ app.use(express.json());
 app.use('/documentation', serve, setup(swaggerDocumentation));
 
 // middlewares
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
-const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
+const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
   flags: 'a',
 });
 app.use(morgan('combined', { stream: logStream }));
