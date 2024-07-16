@@ -56,7 +56,7 @@ app.use('/api/v1/auth/login', loginLimiter);
 // Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/feedback', feedbackRouter);
+app.use('/api/v1/feedbacks', feedbackRouter);
 app.use('/api/v1/comments', commentRouter);
 app.use('/api/v1/votes', voteRouter);
 

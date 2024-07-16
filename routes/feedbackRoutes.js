@@ -6,6 +6,7 @@ import {
   checkDocsOwner,
   setImageOnBody,
   addValidator,
+  setUserOnBody,
 } from '../middlewares/globalMiddlewares.js';
 import voteRouter from './voteRoutes.js';
 import commentRouter from './commentRoutes.js';
@@ -28,6 +29,7 @@ router
   .get(feedback.getAll)
   .post(
     protect,
+    setUserOnBody,
     addValidator(createFeedbackValidator),
     uploadImage,
     setImageOnBody,

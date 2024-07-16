@@ -1,46 +1,45 @@
 /* eslint-disable no-undef */
 import request from 'supertest';
 import app from '../app.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-
-jest.mock('../app.js');
-jest.mock('../models/Feedback.js');
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 describe('feedbacks', () => {
-  let mongodb;
+  let mongoServer;
+  let server;
   beforeAll(async () => {
-    mongodb = await MongoMemoryServer.create();
-    const uri = mongodb.getUri();
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
     await mongoose.connect(uri);
+
+    server = app.listen(8080);
   });
 
   afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongodb.stop();
+    await mongoose.disconnect();
+    await mongoServer.stop();
+    server.close();
   });
 
-  afterEach(async () => {
-    const collections = mongoose.connection.collections;
-    for (const key of collections) {
-      const collection = collections[key];
-      await collection.deleteMany();
-    }
-  });
   describe('get all feedbacks', () => {
-    it('should return 200 if the path is correct', async () => {
-      const actual = await request(app).get('/api/v1/feedbacks');
-      expect(actual.status).toBe(200);
+    it('should return 404 if url is wrong', async () => {
+      const res = await request(app).get('/api/v1/feedbackss');
+      expect(res.statusCode).toBe(404);
     });
-
-    it('should return 400 if the path is wrong', async () => {
-      const actual = await request(app).get('/api/v1/wrongPath');
-      expect(actual.status).toBe(404);
+    it('should return 200 if url is correct', async () => {
+      const res = await request(app).get('/api/v1/feedbacks');
+      expect(res.statusCode).toBe(200);
     });
   });
 
-  describe('get feedback by id', () => {});
+  describe('get feedback by id', () => {
+    it('should return 404 if id is invalid', async () => {
+      const id = 'sdfsdfsfdsdf';
+
+      const res = await request(app).get(`/api/v1/feedbacks/${id}`);
+      expect(res.statusCode).toBe(404);
+    });
+  });
 
   describe('create feedback', () => {});
 

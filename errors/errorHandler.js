@@ -42,7 +42,7 @@ export default function (err, req, res, next) {
 
   const appMode = process.env.NODE_ENV;
 
-  if (appMode === 'development') {
+  if (appMode === 'development' || appMode === 'test') {
     sendDevError(err, res);
   } else if (appMode === 'production') {
     if (err.name === 'JsonWebTokenError') err = handleJWTError();
