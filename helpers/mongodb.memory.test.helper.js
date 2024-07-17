@@ -11,6 +11,9 @@ export const connect = async () => {
   await mongoose.connect(uri);
   server = app.listen(8080);
 };
+export const clearData = async () => {
+  await mongoose.connection.db.dropDatabase();
+};
 
 export const disconnect = async () => {
   await mongoose.disconnect();

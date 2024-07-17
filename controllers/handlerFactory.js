@@ -25,8 +25,12 @@ class Factory {
     });
   });
 
-  getOne = catchAsync(async (req, res) => {
+  getOne = catchAsync(async (req, res, next) => {
     const doc = await this.Model.findById(req.params.id);
+
+    if (!doc) {
+      return next(new HTTPError('no data exists with this id', 404));
+    }
 
     res.status(200).json({
       status: 'success',
@@ -54,8 +58,12 @@ class Factory {
     });
   });
 
-  deleteOne = catchAsync(async (req, res) => {
-    await this.Model.findByIdAndDelete(req.params.id);
+  deleteOne = catchAsync(async (req, res, next) => {
+    const doc = await this.Model.findByIdAndDelete(req.params.id);
+
+    if (!doc) {
+      return next(new HTTPError(`Invalid Id: ${req.params.id}`, 404));
+    }
 
     res.status(204).json({
       status: 'success',
@@ -63,7 +71,7 @@ class Factory {
     });
   });
 
-  updateOne = catchAsync(async (req, res) => {
+  updateOne = catchAsync(async (req, res, next) => {
     const updatedDoc = await this.Model.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -71,6 +79,10 @@ class Factory {
         new: true,
       },
     );
+
+    if (!updatedDoc) {
+      return next(new HTTPError(`Invalid Id: ${req.params.id}`, 404));
+    }
 
     res.status(200).json({
       status: 'success',

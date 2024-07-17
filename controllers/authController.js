@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import User from '../models/User.js';
 import catchAsync from '../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
@@ -9,7 +10,7 @@ export default class AuthController {
   //  GENERATE TOKEN
   generateToken(user) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES,
+      expiresIn: process.env.JWT_EXPIERES,
     });
     return token;
   }
