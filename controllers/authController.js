@@ -9,7 +9,7 @@ export default class AuthController {
   //  GENERATE TOKEN
   generateToken(user) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIERES,
+      expiresIn: process.env.JWT_EXPIRES,
     });
     return token;
   }

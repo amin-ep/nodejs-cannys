@@ -42,9 +42,9 @@ export default function (err, req, res, next) {
 
   const appMode = process.env.NODE_ENV;
 
-  if (appMode === 'development' || appMode === 'test') {
+  if (appMode === 'development') {
     sendDevError(err, res);
-  } else if (appMode === 'production') {
+  } else if (appMode === 'production' || appMode === 'test') {
     if (err.name === 'JsonWebTokenError') err = handleJWTError();
     if (err.name === 'CastError') err = handleCastError(err);
     if (err.name === 'TokenExpiredError') err = handleJwtExpieredError();

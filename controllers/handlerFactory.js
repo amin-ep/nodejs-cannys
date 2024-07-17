@@ -1,5 +1,7 @@
 import catchAsync from '../utils/catchAsync.js';
 import APIFeatures from '../utils/apiFeautures.js';
+import HTTPError from '../errors/httpError.js';
+import User from '../models/User.js';
 
 class Factory {
   constructor(Model) {
@@ -34,18 +36,25 @@ class Factory {
     });
   });
 
-  createOne = catchAsync(async (req, res) => {
+  createOne = catchAsync(async (req, res, next) => {
+    if (req.body.user) {
+      const user = await User.findById(req.body.user);
+      if (!user) {
+        return next(new HTTPError(`Invalid user id: ${req.body.user}`));
+      }
+    }
+
     const newDoc = await this.Model.create(req.body);
 
     res.status(201).json({
       status: 'success',
       data: {
-        newDoc,
+        doc: newDoc,
       },
     });
   });
 
-  deleteOne = catchAsync(async (req, res, next) => {
+  deleteOne = catchAsync(async (req, res) => {
     await this.Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
@@ -54,7 +63,7 @@ class Factory {
     });
   });
 
-  updateOne = catchAsync(async (req, res, next) => {
+  updateOne = catchAsync(async (req, res) => {
     const updatedDoc = await this.Model.findByIdAndUpdate(
       req.params.id,
       req.body,
