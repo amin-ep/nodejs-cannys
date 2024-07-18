@@ -9,7 +9,7 @@ export const connect = async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-  server = app.listen(8080);
+  server = app.listen();
 };
 export const clearData = async () => {
   await mongoose.connection.db.dropDatabase();

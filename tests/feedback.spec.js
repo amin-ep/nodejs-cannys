@@ -333,7 +333,7 @@ describe('feedbacks', () => {
       expect(res.statusCode).toBe(401);
     });
 
-    it.only('should return 403 if user id is not equal to id of owner of feedback', async () => {
+    it('should return 403 if user id is not equal to id of owner of feedback', async () => {
       const user1Obj = {
         fullName: 'Test user',
         email: 'test@email.io',
@@ -359,7 +359,7 @@ describe('feedbacks', () => {
       expect(res.statusCode).toBe(403);
     });
 
-    it.only('should return 204 if everything is ok!', async () => {
+    it('should return 204 if everything is ok!', async () => {
       const userObj = {
         fullName: 'Test user',
         email: 'test@email.io',

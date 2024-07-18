@@ -26,7 +26,6 @@ const userSchema = new Schema(
       type: String,
       enum: ['admin', 'user'],
       default: 'user',
-      select: false,
     },
     verified: {
       type: Boolean,
@@ -46,9 +45,8 @@ const userSchema = new Schema(
 
 // MIDDLEWARES
 userSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.password = await bcrypt.hash(this.password, 12);
-  }
+  this.password = await bcrypt.hash(this.password, 12);
+
   next();
 });
 

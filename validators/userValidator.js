@@ -18,8 +18,8 @@ export const updateMeValidator = Joi.object(schema).fork(
   schema => schema.forbidden(),
 );
 
-export const changeMyPasswordValidator = Joi.object(schema).fork(
-  ['fullName', 'email', 'image', 'role', 'verified', 'active'],
-  schema => schema.forbidden(),
-  ['password'],
-);
+export const changeMyPasswordValidator = Joi.object(schema)
+  .fork(['fullName', 'email', 'image', 'role', 'verified', 'active'], schema =>
+    schema.forbidden(),
+  )
+  .fork(['password', 'currentPassword'], schema => schema.required());

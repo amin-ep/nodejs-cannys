@@ -1,100 +1,143 @@
 /* eslint-disable no-undef */
 import request from 'supertest';
 import app from '../app.js';
-import { connect, disconnect } from '../helpers/mongodb.memory.test.helper.js';
+import {
+  connect,
+  disconnect,
+  clearData,
+} from '../helpers/mongodb.memory.test.helper.js';
 import jwt from 'jsonwebtoken';
 import { config } from 'dotenv';
-
+import User from '../models/User.js';
+import sinon from 'sinon';
 config({ path: '.env' });
-jest.setTimeout(10000);
-describe('authentication', () => {
+jest.mock('nodemailer');
+describe('Authentication', () => {
+  // const generateJWTToken = id => {
+  //   const token = jwt.sign({ id }, process.env.JWT_SECRET, {
+  //     expiresIn: process.env.JWT_EXPIRES,
+  //   });
+  //   return token;
+  // };
+  const createVerifiedUser = async body => {
+    const user = await User.create(body);
+    user.verified = true;
+    await user.save({ validateBeforeSave: false });
+    return user;
+  };
+
+  const createUnverifiedUser = async body => {
+    const user = await User.create(body);
+    return user;
+  };
+
   beforeAll(connect);
   afterAll(disconnect);
+  afterEach(clearData);
 
-  let token;
-  beforeAll(() => {
-    token = jwt.sign(
-      { id: '66975f45558e7bd428f73a03' },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_EXPIRES,
-      },
-    );
-  });
+  // describe('POST/ Register', () => {
+  //   it('should send email if user exists and not verified', async () => {
+  //     const userObj = {
+  //       fullName: 'full name',
+  //       email: 'test@email.io',
+  //       password: 'somepassword',
+  //     };
 
-  describe('/POST register', () => {
-    it('should return 403 if the user exists and verified', async () => {
-      const bodyObj = {
-        fullName: 'AminEbadi',
-        email: 'amincode24@gmail.com',
+  //     const user = await createUnverifiedUser(userObj);
+  //     const key = user.generateVerifyKey();
+  //     const link = `http://localhost:3000/api/v1/verifyEmail/${key}`;
+  //     const html = `
+  //       <p>To confirm your email address please click <a href="${link}"></a>
+  //     `;
+  //     const message = `An email sent to ${user.email}. Please verify your email!`;
+
+  //     // const sendEmail = await sinon.fake();
+  //     const res = await request(app)
+  //       .post('/api/v1/auth/register')
+  //       .send(userObj);
+  //     console.log(res.body);
+  //     expect(res.statusCode).toBe(200);
+  //   });
+  // });
+
+  describe('POST / Login', () => {
+    it('should return 400 if user does not exists (email is incorrect)', async () => {
+      const userObj = {
+        email: 'test@email.io',
         password: 'somepassword',
       };
 
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send(bodyObj);
+      const res = await request(app).post('/api/v1/auth/login').send(userObj);
 
-      console.log(res.error);
-      expect(res.statusCode).toBe(403);
-    });
-    it('should check user exists and send email if it is not verified', async () => {
-      const bodyObj = {
-        fullName: 'AminEbadi',
-        email: 'amincode24@gmail.com',
-        password: 'somepassword',
-      };
-
-      const mockEmailVerificationKey = jest.fn();
-      const key = mockEmailVerificationKey(
-        () => 'c916cd3c-52c6-40af-9628-2fe388a4be84',
-      );
-      const emailOptions = {
-        from: "Canny's clone <info@aminebadi.ir>",
-        to: bodyObj.email,
-        subject: key,
-        html: '<p>To confirm your email address please click <a href="http://localhost:3000/api/v1/verifyEmail/${key}"></a></p>',
-      };
-      const mockSendEmail = jest.fn(emailOptions);
-
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send(bodyObj);
-
-      expect(res.statusCode).toBe(200);
-      expect(mockEmailVerificationKey).toHaveBeenCalled();
-      expect(mockSendEmail).toHaveBeenCalledWith(emailOptions);
-    });
-
-    it('should create a new account if there is no user with this id and send email to that email', async () => {
-      const bodyObj = {
-        fullName: 'AminEbadi',
-        email: 'aminepm82@gmail.com',
-        password: 'somepassword',
-      };
-      const res = await request(app)
-        .post('/api/v1/auth/register')
-        .send(bodyObj);
-    });
-  });
-
-  describe('login', () => {
-    it.only('should return 400 if password is invalid', async () => {
-      const bodyObj = {
-        email: 'amincode24@gmail.com',
-        password: '123456789',
-      };
-      const res = await request(app).post('/api/v1/auth/login').send(bodyObj);
       expect(res.statusCode).toBe(400);
     });
 
-    it.only('should throw error if account is not verified', async () => {
-      const bodyObj = {
-        email: 'notverified@email.io',
-        password: 'not verified',
+    it('should return 400 if password is incorrect', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
       };
 
-      const res = await request(app).post('/api/v1/auth/login').send(bodyObj);
-      expect(res.statusCode);
+      const loginBody = {
+        email: 'test@email.io',
+        password: 'incorrectPass',
+      };
+
+      await createVerifiedUser(userObj);
+      const res = await request(app).post('/api/v1/auth/login').send(loginBody);
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should login user and return 200', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+      await createVerifiedUser(userObj);
+      const loginBody = {
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const res = await request(app).post('/api/v1/auth/login').send(loginBody);
+      console.log(res.body);
+
+      expect(res.statusCode).toBe(200);
+    });
+
+    it('should return 400 if data is invalid', async () => {
+      const loginBody = {
+        email: 'test@',
+        password: 'somePassword',
+      };
+
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+      await createVerifiedUser(userObj);
+      const res = await request(app).post('/api/v1/auth/login').send(loginBody);
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should return 401 if user is not verified', async () => {
+      const loginBody = {
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+      await createUnverifiedUser(userObj);
+      const res = await request(app).post('/api/v1/auth/login').send(loginBody);
+      expect(res.statusCode).toBe(401);
     });
   });
 });

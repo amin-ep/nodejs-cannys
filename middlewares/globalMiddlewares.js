@@ -54,7 +54,7 @@ export const allowedRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(
-        new HTTPError("You don't have premission to performe this action", 403),
+        new HTTPError('You do not at premission to performe this action', 403),
       );
     }
     next();
