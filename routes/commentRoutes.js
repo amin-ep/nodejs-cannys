@@ -3,7 +3,6 @@ import CommentController from '../controllers/commentController.js';
 import {
   protect,
   allowedRoles,
-  protectUserField,
   checkDocsOwner,
   setFeedbackIdOnBody,
   addValidator,
@@ -36,7 +35,6 @@ router
   .delete(checkDocsOwner(Comment), comment.deleteOne)
   .patch(
     addValidator(updateCommentValidator),
-    protectUserField,
     checkDocsOwner(Comment),
     comment.updateOne,
   );

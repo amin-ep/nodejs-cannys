@@ -59,11 +59,21 @@ class Factory {
   });
 
   deleteOne = catchAsync(async (req, res, next) => {
-    const doc = await this.Model.findByIdAndDelete(req.params.id);
+    const checkDocuemnt = await this.Model.findById(req.params.id);
 
-    if (!doc) {
+    if (!checkDocuemnt) {
       return next(new HTTPError(`Invalid Id: ${req.params.id}`, 404));
+    } else {
+      if (checkDocuemnt.user._id.toString() != req.user._id.toString()) {
+        return next(
+          new HTTPError(
+            `This data is not your data or you don't have premission to performe this action`,
+            403,
+          ),
+        );
+      }
     }
+    await this.Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
       status: 'success',
@@ -72,6 +82,21 @@ class Factory {
   });
 
   updateOne = catchAsync(async (req, res, next) => {
+    const checkDocuemnt = await this.Model.findById(req.params.id);
+
+    if (!checkDocuemnt) {
+      return next(new HTTPError(`Invalid Id: ${req.params.id}`, 404));
+    } else {
+      if (checkDocuemnt.user._id.toString() != req.user._id.toString()) {
+        return next(
+          new HTTPError(
+            `This data is not your data or you don't have premission to performe this action`,
+            403,
+          ),
+        );
+      }
+    }
+
     const updatedDoc = await this.Model.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -79,10 +104,6 @@ class Factory {
         new: true,
       },
     );
-
-    if (!updatedDoc) {
-      return next(new HTTPError(`Invalid Id: ${req.params.id}`, 404));
-    }
 
     res.status(200).json({
       status: 'success',

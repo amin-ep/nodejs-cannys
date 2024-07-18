@@ -2,7 +2,6 @@ import express from 'express';
 import FeedbackController from '../controllers/feedbackController.js';
 import {
   protect,
-  protectUserField,
   checkDocsOwner,
   setImageOnBody,
   addValidator,
@@ -42,13 +41,11 @@ router
   .route('/:id')
   .get(feedback.getOne)
   .patch(
-    protectUserField,
-    checkDocsOwner(Feedback),
     addValidator(updateFeedbackValidator),
     uploadImage,
     setImageOnBody,
     feedback.updateOne,
   )
-  .delete(checkDocsOwner(Feedback), feedback.deleteOne);
+  .delete(feedback.deleteOne);
 
 export default router;

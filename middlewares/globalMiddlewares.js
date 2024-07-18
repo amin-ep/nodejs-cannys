@@ -61,15 +61,6 @@ export const allowedRoles = (...roles) => {
   };
 };
 
-export const protectUserField = (req, res, next) => {
-  if (req.body.user) {
-    return next(
-      new HTTPError('Cannot change the user field on this document!'),
-    );
-  }
-  next();
-};
-
 export const setUserOnBody = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user._id.toString();
   next();
@@ -78,7 +69,8 @@ export const setUserOnBody = (req, res, next) => {
 export const checkDocsOwner = Model => {
   return async (req, res, next) => {
     const document = await Model.findById(req.params.id);
-    if (document.user != req.user.id) {
+
+    if (document.user._id.toString() != req.user._id.toString()) {
       if (req.user.role === 'admin') {
         return next();
       } else {
@@ -89,6 +81,8 @@ export const checkDocsOwner = Model => {
           ),
         );
       }
+    } else {
+      next();
     }
   };
 };

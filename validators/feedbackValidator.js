@@ -9,7 +9,6 @@ const schema = {
 
 export const createFeedbackValidator = Joi.object(schema);
 
-export const updateFeedbackValidator = Joi.object(schema).fork(
-  ['user'],
-  schema => schema.forbidden(),
-);
+export const updateFeedbackValidator = Joi.object(schema)
+  .fork(['user'], schema => schema.forbidden())
+  .fork(['title'], schema => schema.optional());
