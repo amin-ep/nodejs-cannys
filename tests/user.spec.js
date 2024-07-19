@@ -178,7 +178,7 @@ describe('users', () => {
       expect(res.statusCode).toBe(400);
     });
 
-    it.only('should return 400 if password is invalid', async () => {
+    it('should return 400 if password is invalid', async () => {
       const userObj = {
         fullName: 'Test user',
         email: 'test@email.io',

@@ -33,6 +33,7 @@ export default class AuthController {
       await sendEmail(
         { email: req.body.email, subject: key, message, html },
         res,
+        201,
       );
     } else if (checkUserExists && checkUserExists.verified === false) {
       const key = checkUserExists.generateVerifyKey();
@@ -45,6 +46,7 @@ export default class AuthController {
       await sendEmail(
         { email: req.body.email, subject: key, message, html },
         res,
+        200,
       );
     } else if (checkUserExists && checkUserExists.verified === true) {
       return next(new HTTPError('There is an account with this email!', 403));
