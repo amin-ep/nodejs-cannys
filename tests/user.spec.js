@@ -148,12 +148,15 @@ describe('users', () => {
       const body = {
         password: 'changedPass',
         currentPassword: 'Somepassword',
+        email: 'some@email.io',
       };
 
       const res = await request(app)
         .patch('/api/v1/users/updateMyPassword')
         .set('Authorization', `Bearer ${token}`)
         .send(body);
+
+      console.log(res.body);
 
       expect(res.statusCode).toBe(400);
     });

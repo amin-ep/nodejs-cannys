@@ -24,6 +24,8 @@ describe('Authentication', () => {
 
   const createUnverifiedUser = async body => {
     const user = await User.create(body);
+    user.generateVerifyKey();
+    await user.save({ validateBeforeSave: false });
     return user;
   };
 
@@ -195,6 +197,106 @@ describe('Authentication', () => {
       await createUnverifiedUser(userObj);
       const res = await request(app).post('/api/v1/auth/login').send(loginBody);
       expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe('POST / Verify Email', () => {
+    it('should return 404 if key is invalid and user does not found', async () => {
+      const key = '1d7d60e1-33cb-41d8-ab82-e20556ac7e4f';
+
+      const res = await request(app).post(`/api/v1/auth/verifyEmail/${key}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    // it.only('should return 200 and verify user if user key is valid', async () => {
+    //   const userObj = {
+    //     fullName: 'full name',
+    //     email: 'test@email.io',
+    //     password: 'somepassword',
+    //   };
+
+    //   const user = await createUnverifiedUser(userObj);
+
+    //   const res = await request(app).patch(
+    //     `/api/v1/auth/verifyEmail/${user.emailVerifyCode}`,
+    //   );
+    //   expect(res.statusCode).toBe(200);
+    // });
+  });
+
+  describe('POST / Forget Password', () => {
+    it.only('should return 400 if input email is invalid and user does not exists', async () => {
+      const reqBody = {
+        email: 'invalid@email.io',
+      };
+
+      const res = await request(app)
+        .post('/api/v1/auth/forgetPassword')
+        .send(reqBody);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it.only('should return 400 if email is invalid email', async () => {
+      const reqBody = {
+        email: 'test@',
+      };
+
+      const res = await request(app)
+        .post('/api/v1/auth/forgetPassword')
+        .send(reqBody);
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it.only('should return 200 if email is valid and send code te email', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const user = await createUnverifiedUser(userObj);
+      const token = user.generatePasswordResetToken();
+      await user.save({ validateBeforeSave: false });
+
+      const reqBody = {
+        email: 'test@email.io',
+      };
+
+      const sendEmailMock = jest
+        .fn()
+        .mockResolvedValue({ accepted: [userObj.email] });
+
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: sendEmailMock,
+      });
+      const link = `http://example.com/verify?key=${token}`;
+      const html = `
+      <p>To confirm your email address please click <a href="${link}">${link}</a></p>
+     `;
+
+      const options = {
+        email: user.email,
+        subject: token,
+        message: 'This is a test mail',
+        html,
+      };
+
+      await sendMail(options);
+
+      const res = await request(app)
+        .post('/api/v1/auth/forgetPassword')
+        .send(reqBody);
+      expect(res.statusCode).toBe(200);
+      expect(sendEmailMock).toHaveBeenCalledWith({
+        from: 'Cannys Clone <info@aminebadi.ir>',
+        to: options.email,
+        subject: options.subject,
+        text: options.message,
+        html: options.html,
+      });
     });
   });
 });

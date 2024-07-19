@@ -19,7 +19,7 @@ router.use(protect);
 router.get('/me', user.getMe, user.getOne);
 router.patch('/updateMe', addValidator(updateUserValidator), user.updateMe);
 router.delete('/deleteMe', user.deleteMe);
-router.post(
+router.patch(
   '/updateMyPassword',
   addValidator(changeMyPasswordValidator),
   user.updateMyPassword,

@@ -59,7 +59,7 @@ export default class AuthController {
     const user = await User.findOne({ emailVerifyCode: req.params.key });
 
     if (!user) {
-      return next(new HTTPError('Invalid key', 400));
+      return next(new HTTPError('Invalid key', 404));
     }
     // verify user (update user)
     user.emailVerifyCode = undefined;
@@ -122,6 +122,7 @@ export default class AuthController {
     await sendEmail(
       { email: req.body.email, subject: resetToken, message, html },
       res,
+      200,
     );
   });
 
