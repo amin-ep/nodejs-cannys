@@ -86,15 +86,15 @@ export default class AuthController {
       '+password',
     );
 
+    if (user.verified === false) {
+      return next(new HTTPError('This account is not verified yet', 401));
+    }
+
     if (!user || !(await user.verifyPassword(req.body.password))) {
       return next(new HTTPError('Icorrect email or password', 400));
     }
 
     const token = this.generateToken(user);
-
-    if (user.verified === false) {
-      return next(new HTTPError('This account is not verified yet', 401));
-    }
 
     res.status(200).json({
       status: 'success',

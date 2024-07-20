@@ -34,7 +34,7 @@ describe('Authentication', () => {
   afterEach(clearData);
 
   describe('POST / register', () => {
-    it.only('should return 200 and send email if user exists and not veridied', async () => {
+    it('should return 200 and send email if user exists and not veridied', async () => {
       const userObj = {
         fullName: 'full name',
         email: 'test@email.io',
@@ -78,7 +78,7 @@ describe('Authentication', () => {
       });
     });
 
-    it.only('should return 201 and create user if user does not exists and send email', async () => {
+    it('should return 201 and create user if user does not exists and send email', async () => {
       const userObj = {
         fullName: 'full name',
         email: 'test@email.io',
@@ -97,12 +97,10 @@ describe('Authentication', () => {
         .post('/api/v1/auth/register')
         .send(userObj);
 
-      console.log('register', res.body);
-
       expect(res.statusCode).toBe(201);
     });
 
-    it.only('should return 403 if user exists and verified', async () => {
+    it('should return 403 if user exists and verified', async () => {
       const userObj = {
         fullName: 'full name',
         email: 'test@email.io',
@@ -162,7 +160,6 @@ describe('Authentication', () => {
       };
 
       const res = await request(app).post('/api/v1/auth/login').send(loginBody);
-      console.log(res.body);
 
       expect(res.statusCode).toBe(200);
     });
@@ -209,24 +206,24 @@ describe('Authentication', () => {
       expect(res.statusCode).toBe(404);
     });
 
-    // it.only('should return 200 and verify user if user key is valid', async () => {
-    //   const userObj = {
-    //     fullName: 'full name',
-    //     email: 'test@email.io',
-    //     password: 'somepassword',
-    //   };
+    it('should return 200 and verify user if user key is valid', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
 
-    //   const user = await createUnverifiedUser(userObj);
+      const user = await createUnverifiedUser(userObj);
 
-    //   const res = await request(app).patch(
-    //     `/api/v1/auth/verifyEmail/${user.emailVerifyCode}`,
-    //   );
-    //   expect(res.statusCode).toBe(200);
-    // });
+      const res = await request(app).post(
+        `/api/v1/auth/verifyEmail/${user.emailVerifyCode}`,
+      );
+      expect(res.statusCode).toBe(200);
+    });
   });
 
   describe('POST / Forget Password', () => {
-    it.only('should return 400 if input email is invalid and user does not exists', async () => {
+    it('should return 400 if input email is invalid and user does not exists', async () => {
       const reqBody = {
         email: 'invalid@email.io',
       };
@@ -238,7 +235,7 @@ describe('Authentication', () => {
       expect(res.statusCode).toBe(404);
     });
 
-    it.only('should return 400 if email is invalid email', async () => {
+    it('should return 400 if email is invalid email', async () => {
       const reqBody = {
         email: 'test@',
       };
@@ -250,7 +247,7 @@ describe('Authentication', () => {
       expect(res.statusCode).toBe(400);
     });
 
-    it.only('should return 200 if email is valid and send code te email', async () => {
+    it('should return 200 if email is valid and send code te email', async () => {
       const userObj = {
         fullName: 'full name',
         email: 'test@email.io',
@@ -297,6 +294,60 @@ describe('Authentication', () => {
         text: options.message,
         html: options.html,
       });
+    });
+  });
+
+  describe('PATCH / Reset Password', () => {
+    it('should return 404 if token is invalid or expired', async () => {
+      const token = 'ac3bada9-1edc-4cdb-8bf0-826debfc632b';
+
+      const res = await request(app).patch(
+        `/api/v1/auth/resetPassword/${token}`,
+      );
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should return 400 if input new password is invalid', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const reqBody = {
+        password: 'invpa',
+      };
+
+      const user = await createVerifiedUser(userObj);
+      user.generatePasswordResetToken();
+      await user.save({ validateBeforeSave: false });
+
+      const res = await request(app)
+        .patch(`/api/v1/auth/resetPassword/${user.passwordResetToken}`)
+        .send(reqBody);
+      expect(res.statusCode).toBe(400);
+    });
+
+    it('should return 200 and hash the new password', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const reqBody = {
+        password: 'somepassword',
+      };
+
+      const user = await createVerifiedUser(userObj);
+      user.generatePasswordResetToken();
+      await user.save({ validateBeforeSave: false });
+
+      const res = await request(app)
+        .patch(`/api/v1/auth/resetPassword/${user.passwordResetToken}`)
+        .send(reqBody);
+      expect(res.statusCode).toBe(200);
     });
   });
 });

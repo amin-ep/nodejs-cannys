@@ -88,7 +88,6 @@ describe('users', () => {
       const res = await request(app)
         .get(`/api/v1/users/${id}`)
         .set('Authorization', `Bearer ${token}`);
-      console.log(res.body);
       expect(res.statusCode).toBe(404);
     });
 
@@ -156,8 +155,6 @@ describe('users', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(body);
 
-      console.log(res.body);
-
       expect(res.statusCode).toBe(400);
     });
     it('should return 400 if current password and user password are not the same', async () => {
@@ -199,7 +196,6 @@ describe('users', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(body);
 
-      console.log(res.body);
       expect(res.statusCode).toBe(400);
     });
 

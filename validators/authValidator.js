@@ -9,7 +9,7 @@ const schema = {
   email: Joi.string().email().required().messages({
     'string.empty': 'please input a valid "email"',
   }),
-  password: Joi.string().required().messages({
+  password: Joi.string().min(6).max(12).required().messages({
     'string.empty': 'please provide a "fullName"',
     'string.min': '"password" must contain atleast 8 chracters atleast!',
     'string.max': `"password" cannot contain morer than 12 charcters!`,
