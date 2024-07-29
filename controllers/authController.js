@@ -29,7 +29,6 @@ export default class AuthController {
       const html = `
         <p>To confirm your email address please click <a href="${link}"></a> 
       `;
-      // this.sendEmail(user, res, message);
       await sendEmail(
         { email: req.body.email, subject: key, message, html },
         res,
@@ -48,6 +47,20 @@ export default class AuthController {
         res,
         200,
       );
+    } else if (checkUserExists && checkUserExists.active === false) {
+      checkUserExists.active = true;
+      checkUserExists.verified = false;
+      const key = checkUserExists.generateVerifyKey();
+      const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
+      const html = `
+        <p>To confirm your email address please click <a href="${link}"></a> 
+      `;
+      await sendEmail(
+        { email: req.body.email, subject: key, message, html },
+        res,
+        201,
+      );
+      await checkUserExists.save({ validateBeforeSave: false });
     } else if (checkUserExists && checkUserExists.verified === true) {
       return next(new HTTPError('There is an account with this email!', 403));
     }
@@ -90,8 +103,12 @@ export default class AuthController {
       return next(new HTTPError('This account is not verified yet', 401));
     }
 
-    if (!user || !(await user.verifyPassword(req.body.password))) {
-      return next(new HTTPError('Icorrect email or password', 400));
+    if (
+      !user ||
+      user.active === false ||
+      !(await user.verifyPassword(req.body.password))
+    ) {
+      return next(new HTTPError('Incorrect email or password', 400));
     }
 
     const token = this.generateToken(user);

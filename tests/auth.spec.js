@@ -29,12 +29,19 @@ describe('Authentication', () => {
     return user;
   };
 
+  const createUnActiveUser = async body => {
+    const user = await User.create(body);
+    user.active = false;
+    await user.save({ validateBeforeSave: false });
+    return user;
+  };
+
   beforeAll(connect);
   afterAll(disconnect);
   afterEach(clearData);
 
   describe('POST / register', () => {
-    it('should return 200 and send email if user exists and not veridied', async () => {
+    it('should return 200 and send email if user exists and not verified', async () => {
       const userObj = {
         fullName: 'full name',
         email: 'test@email.io',
@@ -50,6 +57,50 @@ describe('Authentication', () => {
       });
 
       const user = await createUnverifiedUser(userObj);
+      const key = user.generateVerifyKey();
+      const link = `http://example.com/verify?key=${key}`;
+      const html = `
+      <p>To confirm your email address please click <a href="${link}">${link}</a></p>
+     `;
+      const options = {
+        email: user.email,
+        subject: key,
+        message: 'This is a test mail',
+        html,
+      };
+
+      await sendMail(options);
+
+      const res = await request(app)
+        .post('/api/v1/auth/register')
+        .send(userObj);
+      expect(res.statusCode).toBe(200);
+
+      expect(sendEmailMock).toHaveBeenCalledWith({
+        from: 'Cannys Clone <info@aminebadi.ir>',
+        to: options.email,
+        subject: options.subject,
+        text: options.message,
+        html: options.html,
+      });
+    });
+
+    it('should return 201 and send email if user exists but is not active and wants to signup again', async () => {
+      const userObj = {
+        fullName: 'full name',
+        email: 'test@email.io',
+        password: 'somepassword',
+      };
+
+      const sendEmailMock = jest
+        .fn()
+        .mockResolvedValue({ accepted: [userObj.email] });
+
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: sendEmailMock,
+      });
+
+      const user = await createUnActiveUser(userObj);
       const key = user.generateVerifyKey();
       const link = `http://example.com/verify?key=${key}`;
       const html = `
