@@ -1,11 +1,11 @@
 import express from 'express';
 import AuthController from '../controllers/authController.js';
-import { addValidator } from '../middlewares/globalMiddlewares.js';
+import { addValidator } from '../../middlewares/globalMiddlewares.js';
 import {
   registerValidator,
   forgetPasswordValidator,
   loginValidator,
-} from '../validators/authValidator.js';
+} from '../../validators/authValidator.js';
 const router = express.Router();
 
 const auth = new AuthController();

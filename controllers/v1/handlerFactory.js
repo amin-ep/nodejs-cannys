@@ -1,7 +1,7 @@
-import catchAsync from '../utils/catchAsync.js';
-import APIFeatures from '../utils/apiFeautures.js';
-import HTTPError from '../errors/httpError.js';
-import User from '../models/User.js';
+import catchAsync from '../../utils/catchAsync.js';
+import APIFeatures from '../../utils/apiFeautures.js';
+import HTTPError from '../../errors/httpError.js';
+import User from '../../models/User.js';
 
 class Factory {
   constructor(Model) {

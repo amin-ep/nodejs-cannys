@@ -1,8 +1,8 @@
 import Factory from './handlerFactory.js';
-import Vote from '../models/Vote.js';
+import Vote from '../../models/Vote.js';
 
-import catchAsync from '../utils/catchAsync.js';
-import Feedback from '../models/Feedback.js';
+import catchAsync from '../../utils/catchAsync.js';
+import Feedback from '../../models/Feedback.js';
 
 class VoteController extends Factory {
   constructor() {

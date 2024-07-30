@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
-import User from '../models/User.js';
-import catchAsync from '../utils/catchAsync.js';
+import User from '../../models/User.js';
+import catchAsync from '../../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
-import { resetPasswordValidator } from '../validators/authValidator.js';
-import HTTPError from '../errors/httpError.js';
-import sendEmail from '../helpers/sendEmail.js';
+import { resetPasswordValidator } from '../../validators/authValidator.js';
+import HTTPError from '../../errors/httpError.js';
+import sendEmail from '../../helpers/sendEmail.js';
 
 export default class AuthController {
   //  GENERATE TOKEN

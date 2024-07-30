@@ -25,13 +25,11 @@ app.use(express.json());
 app.use('/documentation', serve, setup(swaggerDocumentation));
 
 // middlewares
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
 const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
   flags: 'a',
 });
 app.use(morgan('combined', { stream: logStream }));
+
 app.use(helmet());
 app.use(mongoSanitize());
 

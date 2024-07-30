@@ -6,12 +6,12 @@ import {
   checkDocsOwner,
   setFeedbackIdOnBody,
   addValidator,
-} from '../middlewares/globalMiddlewares.js';
-import Comment from '../models/Comment.js';
+} from '../../middlewares/globalMiddlewares.js';
+import Comment from '../../models/Comment.js';
 import {
   createCommentValidator,
   updateCommentValidator,
-} from '../validators/CommentValidator.js';
+} from '../../validators/CommentValidator.js';
 
 const router = express.Router({ mergeParams: true });
 

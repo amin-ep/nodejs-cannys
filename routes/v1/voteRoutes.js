@@ -6,9 +6,9 @@ import {
   setFeedbackIdOnBody,
   setUserOnBody,
   addValidator,
-} from '../middlewares/globalMiddlewares.js';
-import Vote from '../models/Vote.js';
-import { voteValidator } from '../validators/voteValidator.js';
+} from '../../middlewares/globalMiddlewares.js';
+import Vote from '../../models/Vote.js';
+import { voteValidator } from '../../validators/voteValidator.js';
 
 const router = express.Router({ mergeParams: true });
 

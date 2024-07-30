@@ -1,9 +1,9 @@
-import catchAsync from '../utils/catchAsync.js';
-import User from '../models/User.js';
-import HTTPError from '../errors/httpError.js';
+import catchAsync from '../../utils/catchAsync.js';
+import User from '../../models/User.js';
+import HTTPError from '../../errors/httpError.js';
 import Factory from './handlerFactory.js';
 
-import sendMail from '../email/email.js';
+import sendMail from '../../email/email.js';
 
 class UserController extends Factory {
   constructor() {

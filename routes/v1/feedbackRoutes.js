@@ -6,15 +6,15 @@ import {
   setImageOnBody,
   addValidator,
   setUserOnBody,
-} from '../middlewares/globalMiddlewares.js';
+} from '../../middlewares/globalMiddlewares.js';
 import voteRouter from './voteRoutes.js';
 import commentRouter from './commentRoutes.js';
-import Feedback from '../models/Feedback.js';
-import { uploadImage } from '../utils/uploadImage.js';
+import Feedback from '../../models/Feedback.js';
+import { uploadImage } from '../../utils/uploadImage.js';
 import {
   createFeedbackValidator,
   updateFeedbackValidator,
-} from '../validators/feedbackValidator.js';
+} from '../../validators/feedbackValidator.js';
 
 const feedback = new FeedbackController();
 

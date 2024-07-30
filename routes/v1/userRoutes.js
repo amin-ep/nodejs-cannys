@@ -4,12 +4,12 @@ import {
   protect,
   allowedRoles,
   addValidator,
-} from '../middlewares/globalMiddlewares.js';
+} from '../../middlewares/globalMiddlewares.js';
 import {
   changeMyPasswordValidator,
   updateMeValidator,
   updateUserValidator,
-} from '../validators/userValidator.js';
+} from '../../validators/userValidator.js';
 
 const router = express.Router();
 
