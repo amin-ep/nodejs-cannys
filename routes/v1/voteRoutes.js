@@ -1,5 +1,5 @@
 import express from 'express';
-import VoteController from '../controllers/voteController.js';
+import VoteController from '../../controllers/v1/voteController.js';
 import {
   protect,
   checkDocsOwner,

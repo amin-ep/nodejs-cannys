@@ -1,15 +1,13 @@
 import express from 'express';
-import FeedbackController from '../controllers/feedbackController.js';
+import FeedbackController from '../../controllers/v1/feedbackController.js';
 import {
   protect,
-  checkDocsOwner,
   setImageOnBody,
   addValidator,
   setUserOnBody,
 } from '../../middlewares/globalMiddlewares.js';
 import voteRouter from './voteRoutes.js';
 import commentRouter from './commentRoutes.js';
-import Feedback from '../../models/Feedback.js';
 import { uploadImage } from '../../utils/uploadImage.js';
 import {
   createFeedbackValidator,

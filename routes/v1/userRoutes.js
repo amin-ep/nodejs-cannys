@@ -1,5 +1,5 @@
 import express from 'express';
-import UserController from '../controllers/userControler.js';
+import UserController from '../../controllers/v1/userControler.js';
 import {
   protect,
   allowedRoles,

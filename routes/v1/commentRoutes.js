@@ -1,5 +1,5 @@
 import express from 'express';
-import CommentController from '../controllers/commentController.js';
+import CommentController from '../../controllers/v1/commentController.js';
 import {
   protect,
   allowedRoles,
